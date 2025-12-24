@@ -2,10 +2,10 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-export function QuizCard({ quiz }: { quiz: any }) {
+export function QuizCard({ quiz }) {
   const groups = quiz?.groups ?? [];
   const totalQuestions = groups.reduce(
-    (acc: number, group: any) => acc + (group?.questions?.length ?? 0),
+    (acc, group) => acc + (group?.questions?.length ?? 0),
     0
   );
 

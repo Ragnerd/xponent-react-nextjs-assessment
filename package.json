@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "npx prisma format && npx prisma generate && npx prisma db push && next build",
     "start": "next start",
     "lint": "next lint",
@@ -47,7 +47,6 @@
     "eslint-config-next": "15.4.1",
     "prisma": "^6.11.1",
     "tailwindcss": "^4",
-    "tw-animate-css": "^1.3.5",
-    "typescript": "^5.9.3"
+    "tw-animate-css": "^1.3.5"
   }
 }

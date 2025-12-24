@@ -1,9 +1,9 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { mockQuizzes } from "@/components/data/mock-quizzes";
-import { mockTests } from "@/components/data/mock-tests";
-import { useCountdownTimer } from "@/components/hooks/use-countdown-timer";
+import { mockQuizzes } from "@/data/mock-quizzes";
+import { mockTests } from "@/data/mock-tests";
+import { useCountdownTimer } from "@/hooks/use-countdown-timer";
 import { CountdownTimer } from "@/components/shared/countdown-timer";
 import { MCQQuestion } from "@/components/test/question-renderer/mcq-question";
 import { TextQuestion } from "@/components/test/question-renderer/text-question";
@@ -17,7 +17,7 @@ export default function TestPage() {
   const quiz = mockQuizzes.find((q) => q.id === test?.quizId);
 
   const [started, setStarted] = useState(false);
-  const [answers, setAnswers] = useState<any>({});
+  const [answers, setAnswers] = useState < any > {};
 
   if (!test || !quiz) return <p>Test not found</p>;
 
@@ -46,23 +46,19 @@ export default function TestPage() {
         <div key={group.id} className="space-y-4">
           <h2 className="text-lg font-semibold">{group.title}</h2>
 
-          {group.questions.map((q: any) => (
+          {group.questions.map((q) => (
             <div key={q.id} className="border p-4 rounded">
               {q.type === "mcq" ? (
                 <MCQQuestion
                   question={q}
                   value={answers[q.id]}
-                  onChange={(val: any) =>
-                    setAnswers({ ...answers, [q.id]: val })
-                  }
+                  onChange={(val) => setAnswers({ ...answers, [q.id]: val })}
                 />
               ) : (
                 <TextQuestion
                   question={q}
                   value={answers[q.id]}
-                  onChange={(val: any) =>
-                    setAnswers({ ...answers, [q.id]: val })
-                  }
+                  onChange={(val) => setAnswers({ ...answers, [q.id]: val })}
                 />
               )}
             </div>

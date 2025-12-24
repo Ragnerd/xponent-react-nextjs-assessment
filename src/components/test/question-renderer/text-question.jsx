@@ -1,6 +1,6 @@
 import { Textarea } from "@/components/ui/textarea";
 
-export function TextQuestion({ question, value, onChange }: any) {
+export function TextQuestion({ question, value, onChange }) {
   return (
     <div className="space-y-2">
       <p className="font-medium">{question.question}</p>
