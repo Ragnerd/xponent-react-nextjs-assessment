@@ -44,6 +44,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.name = token.name;
         session.user.email = token.email;
+        // expose role on session from JWT token
+        session.user.role = token.role ?? undefined;
       }
 
       return session;
@@ -60,6 +62,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       token.isOAuth = !!existingAccount;
       token.name = existingUser.name;
       token.email = existingUser.email;
+      // assign admin role for the configured admin email
+      token.role =
+        existingUser.email === "admin@example.com" ? "admin" : "user";
 
       return token;
     },
