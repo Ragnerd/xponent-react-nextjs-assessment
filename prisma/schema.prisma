@@ -12,6 +12,21 @@ enum QuestionType {
   TEXT
 }
 
+model Position {
+  id      String @id @default(uuid())
+  title   String
+  quizzes Quiz[]
+}
+
+model Quiz {
+  id         String   @id @default(uuid())
+  title      String
+  position   Position @relation(fields: [positionId], references: [id])
+  positionId String
+  groups     Group[]
+  tests      Test[]
+}
+
 model User {
   id            String            @id @default(uuid())
   name          String
@@ -64,13 +79,12 @@ model PasswordResetToken {
 model Test {
   id            String            @id @default(uuid())
   name          String
-  position      String
+  quiz          Quiz              @relation(fields: [quizId], references: [id])
+  quizId        String
   date          DateTime
   durationMin   Int
-  groups        Group[]
   assignedTests AssignedTest[]
   testSessions  UserTestSession[]
-  testQuestions TestQuestion[]
 }
 
 model AssignedTest {
@@ -100,39 +114,28 @@ model UserTestSession {
 model Group {
   id        String     @id @default(uuid())
   name      String
-  test      Test       @relation(fields: [testId], references: [id])
-  testId    String
+  quiz      Quiz       @relation(fields: [quizId], references: [id])
+  quizId    String
   questions Question[]
 }
 
 model Question {
-  id            String         @id @default(uuid())
-  group         Group          @relation(fields: [groupId], references: [id])
-  groupId       String
-  text          String
-  type          QuestionType
-  score         Int
-  correct       Int? // MCQ only
-  choices       Choice[]
-  userAnswers   UserAnswer[]
-  testQuestions TestQuestion[]
-}
-
-model TestQuestion {
-  id         String   @id @default(uuid())
-  test       Test     @relation(fields: [testId], references: [id])
-  testId     String
-  question   Question @relation(fields: [questionId], references: [id])
-  questionId String
-  order      Int // Optional: order in test
+  id          String       @id @default(uuid())
+  group       Group        @relation(fields: [groupId], references: [id])
+  groupId     String
+  text        String
+  type        QuestionType
+  score       Int
+  choices     Choice[]
+  userAnswers UserAnswer[]
 }
 
 model Choice {
   id         String   @id @default(uuid())
   text       String
+  isCorrect  Boolean  @default(false)
   question   Question @relation(fields: [questionId], references: [id])
   questionId String
-  index      Int // Unique index to match against correct answer
 }
 
 model UserAnswer {

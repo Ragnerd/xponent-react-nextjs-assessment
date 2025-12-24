@@ -53,33 +53,15 @@ const data = {
   ],
   navMain: [
     {
-      title: "Interviews",
-      icon: null,
+      key: "interviews",
+      title: "Assessments",
       items: [
-        {
-          title: "Dashboard",
-          url: "/dashboard",
-        },
-        {
-          title: "Quizzes",
-          url: "/admin/quizzes",
-        },
-        {
-          title: "Tests",
-          url: "/admin/tests",
-        },
-        {
-          title: "Results",
-          url: "/admin/results",
-        },
-        {
-          title: "Positions",
-          url: "/admin/positions",
-        },
-        {
-          title: "Interviewees",
-          url: "/admin/interviewees",
-        },
+        { title: "Dashboard", url: "/dashboard" },
+        { title: "Quizzes", url: "/admin/quizzes" },
+        { title: "Tests", url: "/admin/tests" },
+        { title: "Results", url: "/admin/results" },
+        { title: "Positions", url: "/admin/positions" },
+        { title: "Interviewees", url: "/admin/interviewees" },
       ],
     },
     {
@@ -187,9 +169,9 @@ const data = {
   ],
 };
 
-const interviewNav = data.navMain.filter((item) => item.title === "Interviews");
+const assessmentNav = data.navMain.filter((item) => item.key === "interviews");
 
-const platformNav = data.navMain.filter((item) => item.title !== "Interviews");
+const platformNav = data.navMain.filter((item) => item.key !== "interviews");
 
 export function AppSidebar({ user, ...props }) {
   return (
@@ -199,7 +181,7 @@ export function AppSidebar({ user, ...props }) {
       </SidebarHeader>
 
       <SidebarContent>
-        <NavMain items={interviewNav} label="Interviews" />
+        <NavMain items={assessmentNav} label="Interviews" />
         <NavMain items={platformNav} label="Platform" />
         <NavProjects projects={data.projects} />
       </SidebarContent>

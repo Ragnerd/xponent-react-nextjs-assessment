@@ -1,5 +1,19 @@
+// import { PrismaClient } from "@prisma/client";
+
+// export const db = globalThis.prisma || new PrismaClient();
+
+// if (process.env.NODE_ENV !== "production") globalThis.prisma = db;
+
 import { PrismaClient } from "@prisma/client";
 
-export const db = globalThis.prisma || new PrismaClient();
+const globalForPrisma = globalThis;
 
-if (process.env.NODE_ENV !== "production") globalThis.prisma = db;
+export const db =
+  globalForPrisma.db ||
+  new PrismaClient({
+    log: ["error"],
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.db = db;
+}
