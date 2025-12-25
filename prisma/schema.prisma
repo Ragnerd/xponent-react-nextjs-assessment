@@ -90,14 +90,21 @@ model Test {
 }
 
 model AssignedTest {
-  id              String   @id @default(uuid())
-  user            User     @relation(fields: [userId], references: [id])
-  userId          String
-  test            Test     @relation(fields: [testId], references: [id])
-  testId          String
-  assignedAt      DateTime @default(now())
-  loginToken      String?
-  credentialsSent Boolean  @default(false)
+  id           String   @id @default(uuid())
+
+  testId       String
+  userId       String
+
+  assignedAt   DateTime? @default(now()) // 👈 TEMP FIX
+  startedAt    DateTime?
+  submittedAt  DateTime?
+  isLocked     Boolean  @default(false)
+
+  test         Test     @relation(fields: [testId], references: [id])
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@index([testId])
+  @@index([userId])
 }
 
 model UserTestSession {

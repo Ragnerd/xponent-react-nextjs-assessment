@@ -78,7 +78,7 @@ export default async function AdminTestPage({ params }) {
 
       <div className="pt-6">
         <Link
-          href={`/admin/interviewees?testId=${test.id}`}
+          href={`/admin/tests/${test.id}/assign`}
           className="inline-block bg-black text-white px-4 py-2 rounded"
         >
           Assign Interviewee
