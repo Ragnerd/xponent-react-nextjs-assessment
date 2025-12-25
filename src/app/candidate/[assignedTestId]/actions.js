@@ -32,6 +32,7 @@ export async function submitTest({ assignedTestId, answers, auto }) {
     where: { id: assignedTestId },
     data: {
       submittedAt: new Date(),
+      isLocked: true,
     },
   });
 }

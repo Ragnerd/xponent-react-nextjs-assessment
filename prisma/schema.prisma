@@ -90,33 +90,38 @@ model Test {
 }
 
 model AssignedTest {
-  id           String   @id @default(uuid())
+  id          String    @id @default(uuid())
+  testId      String
+  userId      String
+  startedAt   DateTime?
+  submittedAt DateTime?
+  isLocked    Boolean   @default(false)
 
-  testId       String
-  userId       String
+  test Test @relation(fields: [testId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
-  assignedAt   DateTime? @default(now()) // 👈 TEMP FIX
-  startedAt    DateTime?
-  submittedAt  DateTime?
-  isLocked     Boolean  @default(false)
-
-  test         Test     @relation(fields: [testId], references: [id])
-  user         User     @relation(fields: [userId], references: [id])
+  userAnswers  UserAnswer[]
+  testSessions UserTestSession[]
 
   @@index([testId])
   @@index([userId])
 }
 
 model UserTestSession {
-  id          String       @id @default(uuid())
-  user        User         @relation(fields: [userId], references: [id])
-  userId      String
-  test        Test         @relation(fields: [testId], references: [id])
-  testId      String
-  startedAt   DateTime
-  endedAt     DateTime?
-  submitted   Boolean      @default(false)
-  totalScore  Float        @default(0)
+  id             String  @id @default(uuid())
+  userId         String
+  testId         String
+  assignedTestId String?
+
+  startedAt   DateTime?
+  submittedAt DateTime?
+  totalScore  Int       @default(0)
+
+  user         User          @relation(fields: [userId], references: [id])
+  test         Test          @relation(fields: [testId], references: [id])
+  assignedTest AssignedTest? @relation(fields: [assignedTestId], references: [id])
+
+  // ✅ REQUIRED
   userAnswers UserAnswer[]
 }
 
@@ -159,12 +164,20 @@ model Choice {
 }
 
 model UserAnswer {
-  id            String          @id @default(uuid())
-  testSession   UserTestSession @relation(fields: [testSessionId], references: [id])
-  testSessionId String
-  question      Question        @relation(fields: [questionId], references: [id])
-  questionId    String
-  response      String // For MCQ: choice index as string; for TEXT: answer
-  autoScore     Float? // For MCQ
-  givenScore    Float? // For TEXT (manual evaluation)
+  id String @id @default(uuid())
+
+  assignedTestId String
+  questionId     String
+  testSessionId  String? // ✅ NEW (optional, safe)
+
+  response     String?
+  mcqAnswerIds String?
+  givenScore   Int?
+  maxScore     Int
+
+  assignedTest AssignedTest     @relation(fields: [assignedTestId], references: [id])
+  question     Question         @relation(fields: [questionId], references: [id])
+  testSession  UserTestSession? @relation(fields: [testSessionId], references: [id])
+
+  @@index([assignedTestId])
 }
