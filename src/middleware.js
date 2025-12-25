@@ -1,5 +1,3 @@
-// export { auth as middleware } from "@/auth";
-
 import NextAuth from "next-auth";
 import authConfig from "./auth.config";
 import {
@@ -8,10 +6,11 @@ import {
   authRoutes,
   publicRoutes,
 } from "../routes";
+import { db } from "@/lib/db";
 
 const { auth } = NextAuth(authConfig);
 
-export default auth((req) => {
+export default auth(async (req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
 
@@ -19,39 +18,52 @@ export default auth((req) => {
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
-  if (isApiAuthRoute) {
-    // Do nothing for API auth routes
-    return;
-  }
+  if (isApiAuthRoute) return;
 
   if (isAuthRoute) {
     if (isLoggedIn) {
-      // Redirect logged-in users away from auth routes
       return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
     }
-    // Allow unauthenticated users to access auth routes
     return;
   }
 
   if (!isLoggedIn && !isPublicRoute) {
-    // Redirect unauthenticated users to the login page
     let callbackUrl = nextUrl.pathname;
-    if (nextUrl.search) {
-      callbackUrl += nextUrl.search;
-    }
-
-    const encodedCallbackUrl = encodeURIComponent(callbackUrl);
+    if (nextUrl.search) callbackUrl += nextUrl.search;
 
     return Response.redirect(
-      new URL(`/auth/login?callbackUrl=${encodedCallbackUrl}`, nextUrl)
+      new URL(
+        `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`,
+        nextUrl
+      )
     );
   }
 
-  // Allow access to public routes or logged-in users
+  // 🔥 Candidate auto-redirect
+  if (isLoggedIn && nextUrl.pathname === "/dashboard") {
+    const user = req.auth?.user;
+
+    // 🚫 Never redirect admin
+    if (user?.email) return;
+
+    const assignedTest = await db.assignedTest.findFirst({
+      where: {
+        userId: user.id,
+        submittedAt: null,
+        isLocked: false,
+      },
+    });
+
+    if (assignedTest) {
+      return Response.redirect(
+        new URL(`/candidate/${assignedTest.id}`, nextUrl)
+      );
+    }
+  }
+
   return;
 });
 
-// Optionally, don't invoke Middleware on some paths
 export const config = {
   matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 };

@@ -43,8 +43,7 @@ export async function POST(req) {
 
       const givenIds = (userAnswer || []).sort();
 
-      const isCorrect =
-        JSON.stringify(correctIds) === JSON.stringify(givenIds);
+      const isCorrect = JSON.stringify(correctIds) === JSON.stringify(givenIds);
 
       await db.userAnswer.create({
         data: {

@@ -68,7 +68,7 @@ export default async function Page() {
           <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
         </div> */}
 
-        {/* original codebase has been kept instack */}
+        {/* original codebase has been kept intact */}
         <div className="flex flex-1 flex-col gap-6 p-4 pt-0">
           {/* Quick actions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -97,9 +97,9 @@ export default async function Page() {
               href="/admin/positions"
             />
             <DashboardCard
-              title="Interviewees"
+              title="Test Takers"
               description="Manage test takers"
-              href="/admin/interviewees"
+              href="/admin/test-takers"
             />
           </div>
         </div>

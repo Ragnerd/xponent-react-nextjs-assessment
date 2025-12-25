@@ -4,8 +4,7 @@ import Github from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 
-import { getUserByEmail } from "./data/user";
-import { LoginSchema } from "./schemas/auth";
+import { db } from "@/lib/db";
 
 export default {
   providers: [
@@ -13,26 +12,44 @@ export default {
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
+
     Github({
       clientId: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
     }),
+
     Credentials({
+      name: "Credentials",
+      credentials: {
+        identifier: { label: "Email or User ID", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+
       async authorize(credentials) {
-        const validatedFields = LoginSchema.safeParse(credentials);
+        if (!credentials) return null;
 
-        if (validatedFields.success) {
-          const { email, password } = validatedFields.data;
+        const { identifier, password } = credentials;
 
-          const user = await getUserByEmail(email);
-          if (!user || !user.password) return null;
+        if (!identifier || !password) return null;
 
-          const passwordsMatch = await bcrypt.compare(password, user.password);
+        let user;
 
-          if (passwordsMatch) return user;
+        if (identifier.includes("@")) {
+          user = await db.user.findUnique({
+            where: { email: identifier },
+          });
+        } else {
+          user = await db.user.findUnique({
+            where: { id: identifier },
+          });
         }
 
-        return null;
+        if (!user || !user.password) return null;
+
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) return null;
+
+        return user;
       },
     }),
   ],

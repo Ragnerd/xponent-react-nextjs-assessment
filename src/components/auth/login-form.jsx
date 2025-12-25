@@ -38,7 +38,7 @@ export const LoginForm = () => {
   const form = useForm({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
-      email: "",
+      identifier: "",
       password: "",
     },
   });
@@ -76,16 +76,16 @@ export const LoginForm = () => {
           <div className="space-y-4">
             <FormField
               control={form.control}
-              name="email"
+              name="identifier"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Email or User ID</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       disabled={isPending}
-                      placeholder="john.doe@example.com"
-                      type="email"
+                      placeholder="admin@example.com"
+                      type="text"
                     />
                   </FormControl>
                   <FormMessage />
