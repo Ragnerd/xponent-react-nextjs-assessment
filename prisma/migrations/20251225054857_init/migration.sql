@@ -1,4 +1,18 @@
 -- CreateTable
+CREATE TABLE "Position" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "title" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "Quiz" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "title" TEXT NOT NULL,
+    "positionId" TEXT NOT NULL,
+    CONSTRAINT "Quiz_positionId_fkey" FOREIGN KEY ("positionId") REFERENCES "Position" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
@@ -45,9 +59,10 @@ CREATE TABLE "PasswordResetToken" (
 CREATE TABLE "Test" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
-    "position" TEXT NOT NULL,
+    "quizId" TEXT NOT NULL,
     "date" DATETIME NOT NULL,
-    "durationMin" INTEGER NOT NULL
+    "durationMin" INTEGER NOT NULL,
+    CONSTRAINT "Test_quizId_fkey" FOREIGN KEY ("quizId") REFERENCES "Quiz" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -79,8 +94,17 @@ CREATE TABLE "UserTestSession" (
 CREATE TABLE "Group" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
+    "quizId" TEXT NOT NULL,
+    CONSTRAINT "Group_quizId_fkey" FOREIGN KEY ("quizId") REFERENCES "Quiz" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "TestGroup" (
+    "id" TEXT NOT NULL PRIMARY KEY,
     "testId" TEXT NOT NULL,
-    CONSTRAINT "Group_testId_fkey" FOREIGN KEY ("testId") REFERENCES "Test" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "groupId" TEXT NOT NULL,
+    CONSTRAINT "TestGroup_testId_fkey" FOREIGN KEY ("testId") REFERENCES "Test" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "TestGroup_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -90,26 +114,15 @@ CREATE TABLE "Question" (
     "text" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "score" INTEGER NOT NULL,
-    "correct" INTEGER,
     CONSTRAINT "Question_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "TestQuestion" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "testId" TEXT NOT NULL,
-    "questionId" TEXT NOT NULL,
-    "order" INTEGER NOT NULL,
-    CONSTRAINT "TestQuestion_testId_fkey" FOREIGN KEY ("testId") REFERENCES "Test" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "TestQuestion_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "Choice" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "text" TEXT NOT NULL,
+    "isCorrect" BOOLEAN NOT NULL DEFAULT false,
     "questionId" TEXT NOT NULL,
-    "index" INTEGER NOT NULL,
     CONSTRAINT "Choice_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 

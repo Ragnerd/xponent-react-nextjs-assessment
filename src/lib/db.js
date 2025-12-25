@@ -9,11 +9,11 @@ import { PrismaClient } from "@prisma/client";
 const globalForPrisma = globalThis;
 
 export const db =
-  globalForPrisma.db ||
+  globalForPrisma.prisma ??
   new PrismaClient({
     log: ["error"],
   });
 
 if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.db = db;
+  globalForPrisma.prisma = db;
 }

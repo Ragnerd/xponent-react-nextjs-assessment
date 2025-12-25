@@ -1,21 +1,29 @@
-import { mockTests } from "@/components/data/mock-tests";
-import { Card, CardContent } from "@/components/ui/card";
+import { db } from "@/lib/db";
+import Link from "next/link";
 
-export default function AdminTestsPage() {
+export default async function TestsPage() {
+  const tests = await db.test.findMany({
+    include: { quiz: true },
+  });
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Tests</h1>
+    <div className="space-y-4">
+      <h1 className="text-xl font-semibold">Tests</h1>
 
-      {mockTests.map((test) => (
-        <Card key={test.id}>
-          <CardContent className="space-y-2 py-4">
-            <p className="font-medium">{test.testName}</p>
-            <p className="text-sm text-muted-foreground">
-              Assigned to: {test.assignedTo.name}
-            </p>
-            <p className="text-sm">Duration: {test.durationMinutes} minutes</p>
-          </CardContent>
-        </Card>
+      {tests.map((t) => (
+        <div key={t.id} className="border p-3 rounded">
+          <div className="font-medium">{t.name}</div>
+          <div className="text-sm text-muted-foreground">
+            {t.quiz.title} · {t.durationMin} min
+          </div>
+
+          <Link
+            href={`/admin/tests/${t.id}`}
+            className="text-blue-600 underline text-sm"
+          >
+            View Test
+          </Link>
+        </div>
       ))}
     </div>
   );

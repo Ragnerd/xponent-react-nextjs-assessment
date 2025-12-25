@@ -1,71 +1,68 @@
-"use client";
+import { db } from "@/lib/db";
+import { createTest } from "./actions";
 
-import { useSearchParams, useRouter } from "next/navigation";
-import { useState } from "react";
-import { mockQuizzes } from "@/components/data/mock-quizzes";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-
-export default function CreateTestPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
-  const quizId = searchParams.get("quizId");
-  const quiz = mockQuizzes.find((q) => q.id === quizId);
-
-  const [testName, setTestName] = useState("");
-  const [duration, setDuration] = useState(30);
-
-  if (!quiz) {
-    return <p className="text-red-500">Quiz not found</p>;
-  }
-
-  const handleCreateTest = () => {
-    // Mock creation — no backend
-    console.log({
-      quizId: quiz.id,
-      testName,
-      duration,
-    });
-
-    router.push("/admin/tests");
-  };
+export default async function CreateTestPage() {
+  const quizzes = await db.quiz.findMany();
+  const groups = await db.group.findMany(); // 🔑 FETCH GROUPS DIRECTLY
 
   return (
-    <div className="max-w-xl space-y-6">
-      <h1 className="text-2xl font-bold">Create Test</h1>
+    <form action={createTest} className="space-y-6 max-w-xl">
+      <h1 className="text-xl font-semibold">Create Test</h1>
 
-      <Card>
-        <CardHeader>
-          <h2 className="font-semibold">{quiz.title}</h2>
-          <p className="text-sm text-muted-foreground">
-            Position: {quiz.position}
-          </p>
-        </CardHeader>
+      {/* Quiz */}
+      <select name="quizId" required className="border p-2 w-full">
+        <option value="">Select Quiz</option>
+        {quizzes.map((q) => (
+          <option key={q.id} value={q.id}>
+            {q.title}
+          </option>
+        ))}
+      </select>
 
-        <CardContent className="space-y-4">
-          <div>
-            <label className="text-sm font-medium">Test Name</label>
-            <Input
-              value={testName}
-              onChange={(e) => setTestName(e.target.value)}
-              placeholder="Frontend Interview – Round 1"
-            />
-          </div>
+      {/* Test Name */}
+      <input
+        name="name"
+        placeholder="Test name"
+        className="border p-2 w-full"
+        required
+      />
 
-          <div>
-            <label className="text-sm font-medium">Duration (minutes)</label>
-            <Input
-              type="number"
-              value={duration}
-              onChange={(e) => setDuration(Number(e.target.value))}
-            />
-          </div>
+      {/* Test Date */}
+      <input
+        type="datetime-local"
+        name="testDate"
+        className="border p-2 w-full"
+        required
+      />
 
-          <Button onClick={handleCreateTest}>Create Test</Button>
-        </CardContent>
-      </Card>
-    </div>
+      {/* Duration */}
+      <input
+        type="number"
+        name="durationMin"
+        placeholder="Duration (minutes)"
+        className="border p-2 w-full"
+        required
+      />
+
+      {/* Groups */}
+      <div className="space-y-2">
+        <p className="font-medium">Select Question Groups</p>
+
+        {groups.length === 0 && (
+          <p className="text-sm text-gray-500">No groups found</p>
+        )}
+
+        {groups.map((g) => (
+          <label key={g.id} className="flex gap-2 text-sm">
+            <input type="checkbox" name="groupIds" value={g.id} />
+            {g.name}
+          </label>
+        ))}
+      </div>
+
+      <button className="bg-black text-white px-6 py-2 rounded">
+        Assign Test
+      </button>
+    </form>
   );
 }

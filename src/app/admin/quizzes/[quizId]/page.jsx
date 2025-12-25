@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import Link from "next/link";
-import { createTest } from "./actions";
+import { createGroup } from "./actions";
 
 export default async function QuizPage({ params }) {
   const quiz = await db.quiz.findUnique({
@@ -15,18 +15,18 @@ export default async function QuizPage({ params }) {
       <h1 className="text-xl font-semibold">{quiz.title}</h1>
 
       {/* Create Group */}
-      <form action={createTest} className="flex gap-2 max-w-md mt-6">
+      <form action={createGroup} className="flex gap-2">
         <input type="hidden" name="quizId" value={quiz.id} />
 
         <input
-          type="number"
-          name="duration"
-          placeholder="Duration (min)"
+          name="name"
+          placeholder="e.g. Logic / React / JS"
           className="border px-3 py-2 rounded w-full"
+          required
         />
 
         <button className="bg-black text-white px-4 py-2 rounded">
-          Create Test
+          Add Group
         </button>
       </form>
 

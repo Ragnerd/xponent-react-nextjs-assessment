@@ -1,18 +1,43 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+/* =========================
+   CREATE GROUP (FIX)
+========================= */
+export async function createGroup(formData) {
+  const name = formData.get("name");
+  const quizId = formData.get("quizId");
+
+  if (!name || !quizId) {
+    throw new Error("Missing name or quizId");
+  }
+
+  await db.group.create({
+    data: {
+      name,
+      quizId,
+    },
+  });
+
+  revalidatePath(`/admin/quizzes/${quizId}`);
+}
+
+/* =========================
+   CREATE TEST (UNCHANGED)
+========================= */
 export async function createTest(formData) {
   const quizId = formData.get("quizId");
   const durationMin = Number(formData.get("duration")) || 30;
 
   if (!quizId) return;
 
-  // Get quiz with all questions
   const quiz = await db.quiz.findUnique({
     where: { id: quizId },
     include: {
+      position: true, // ⚠️ REQUIRED (you were missing this)
       groups: {
         include: {
           questions: true,
@@ -23,7 +48,6 @@ export async function createTest(formData) {
 
   if (!quiz) return;
 
-  // Create test
   const test = await db.test.create({
     data: {
       name: quiz.title,
@@ -33,7 +57,6 @@ export async function createTest(formData) {
     },
   });
 
-  // Flatten questions & attach to test
   let order = 1;
 
   for (const group of quiz.groups) {

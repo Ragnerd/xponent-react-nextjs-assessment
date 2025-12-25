@@ -2,12 +2,16 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import { createPosition } from "./actions";
 
-console.log("DB URL USED BY NEXT:", process.env.DATABASE_URL);
-
 export default async function PositionsPage() {
-  const positions = await db.position.findMany({
-    orderBy: { title: "asc" },
-  });
+  let positions = [];
+
+  try {
+    positions = await db.position.findMany({
+      orderBy: { title: "asc" },
+    });
+  } catch (err) {
+    console.error("Failed to load positions:", err);
+  }
 
   return (
     <div className="space-y-6">

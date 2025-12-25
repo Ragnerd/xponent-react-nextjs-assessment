@@ -77,14 +77,16 @@ model PasswordResetToken {
 }
 
 model Test {
-  id            String            @id @default(uuid())
-  name          String
-  quiz          Quiz              @relation(fields: [quizId], references: [id])
-  quizId        String
-  date          DateTime
-  durationMin   Int
+  id          String   @id @default(uuid())
+  name        String
+  quizId      String
+  date        DateTime
+  durationMin Int
+
   assignedTests AssignedTest[]
   testSessions  UserTestSession[]
+  groups        TestGroup[]
+  quiz          Quiz              @relation(fields: [quizId], references: [id])
 }
 
 model AssignedTest {
@@ -112,11 +114,22 @@ model UserTestSession {
 }
 
 model Group {
-  id        String     @id @default(uuid())
-  name      String
-  quiz      Quiz       @relation(fields: [quizId], references: [id])
-  quizId    String
-  questions Question[]
+  id     String @id @default(uuid())
+  name   String
+  quizId String
+
+  questions  Question[]
+  testGroups TestGroup[]
+  quiz       Quiz        @relation(fields: [quizId], references: [id])
+}
+
+model TestGroup {
+  id      String @id @default(uuid())
+  testId  String
+  groupId String
+
+  test  Test  @relation(fields: [testId], references: [id])
+  group Group @relation(fields: [groupId], references: [id])
 }
 
 model Question {
