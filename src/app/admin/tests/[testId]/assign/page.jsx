@@ -1,22 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { assignInterviewee } from "./actions";
 
 export default function AssignPage({ params }) {
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
+  const [assignedTestId, setAssignedTestId] = useState(null);
 
   async function onSubmit(formData) {
     setError(null);
-    setSuccess(false);
+    setAssignedTestId(null);
 
     const res = await assignInterviewee(formData);
 
     if (res?.error) {
       setError(res.error);
     } else {
-      setSuccess(true);
+      setAssignedTestId(res.assignedTestId);
     }
   }
 
@@ -39,14 +40,23 @@ export default function AssignPage({ params }) {
         </button>
       </form>
 
-      {/* ❌ Error */}
+      {/* ERROR */}
       {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
 
-      {/* ✅ Success */}
-      {success && (
-        <p className="text-sm text-green-600 font-medium">
-          Test assigned successfully
-        </p>
+      {/* SUCCESS + PREVIEW */}
+      {assignedTestId && (
+        <div className="space-y-3">
+          <p className="text-sm text-green-600 font-medium">
+            Test assigned successfully
+          </p>
+
+          <Link
+            href={`/candidate/${assignedTestId}?preview=1`}
+            className="inline-block bg-yellow-500 text-black px-4 py-2 rounded"
+          >
+            Preview Test (Admin)
+          </Link>
+        </div>
       )}
     </div>
   );

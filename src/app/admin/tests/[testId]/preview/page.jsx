@@ -1,8 +1,15 @@
 import { db } from "@/lib/db";
-import TestClient from "./test-client";
+import TestClient from "@/app/candidate/[assignedTestId]/test-client";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
-export default async function CandidateTestPage({ params, searchParams }) {
-  const previewMode = searchParams?.preview === "1";
+export default async function AdminTestPreviewPage({ params }) {
+  const session = await auth();
+
+  // Safety check
+  if (session?.user?.email !== "admin@example.com") {
+    redirect("/dashboard");
+  }
 
   const assigned = await db.assignedTest.findUnique({
     where: { id: params.assignedTestId },
@@ -27,8 +34,8 @@ export default async function CandidateTestPage({ params, searchParams }) {
   });
 
   if (!assigned) {
-    return <div className="p-6">Invalid or expired test</div>;
+    return <div className="p-6">Invalid test assignment</div>;
   }
 
-  return <TestClient assigned={assigned} previewMode={previewMode} />;
+  return <TestClient assigned={assigned} previewMode={true} />;
 }

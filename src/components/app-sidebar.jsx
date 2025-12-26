@@ -61,7 +61,7 @@ const data = {
         { title: "Tests", url: "/admin/tests" },
         { title: "Results", url: "/admin/results" },
         { title: "Positions", url: "/admin/positions" },
-        { title: "Interviewees", url: "/admin/interviewees" },
+        { title: "Test Takers", url: "/admin/test-takers" },
       ],
     },
     {

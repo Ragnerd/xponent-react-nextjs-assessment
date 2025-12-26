@@ -6,13 +6,13 @@ import {
   authRoutes,
   publicRoutes,
 } from "../routes";
-import { db } from "@/lib/db";
 
 const { auth } = NextAuth(authConfig);
 
 export default auth(async (req) => {
   const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
+  const session = req.auth;
+  const isLoggedIn = !!session;
 
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
@@ -20,6 +20,7 @@ export default auth(async (req) => {
 
   if (isApiAuthRoute) return;
 
+  // Auth pages
   if (isAuthRoute) {
     if (isLoggedIn) {
       return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
@@ -27,6 +28,7 @@ export default auth(async (req) => {
     return;
   }
 
+  // Protect non-public routes
   if (!isLoggedIn && !isPublicRoute) {
     let callbackUrl = nextUrl.pathname;
     if (nextUrl.search) callbackUrl += nextUrl.search;
@@ -39,26 +41,34 @@ export default auth(async (req) => {
     );
   }
 
-  // 🔥 Candidate auto-redirect
-  if (isLoggedIn && nextUrl.pathname === "/dashboard") {
-    const user = req.auth?.user;
+  const email = session?.user?.email;
+  const role = session?.user?.role;
 
-    // 🚫 Never redirect admin
-    if (user?.email) return;
+  const isAdmin = email === "admin@example.com";
+  const isCandidate = role === "candidate";
 
-    const assignedTest = await db.assignedTest.findFirst({
-      where: {
-        userId: user.id,
-        submittedAt: null,
-        isLocked: false,
-      },
-    });
-
-    if (assignedTest) {
-      return Response.redirect(
-        new URL(`/candidate/${assignedTest.id}`, nextUrl)
-      );
+  /**
+   * Admin-only dashboard
+   */
+  if (nextUrl.pathname.startsWith("/dashboard")) {
+    if (!isAdmin) {
+      return Response.redirect(new URL("/candidate", nextUrl));
     }
+    return;
+  }
+
+  /**
+   * Candidate should never see dashboard
+   */
+  if (isCandidate && nextUrl.pathname === "/dashboard") {
+    return Response.redirect(new URL("/candidate", nextUrl));
+  }
+
+  /**
+   * Admin should NEVER access /candidate
+   */
+  if (isAdmin && nextUrl.pathname.startsWith("/candidate")) {
+    return Response.redirect(new URL("/dashboard", nextUrl));
   }
 
   return;

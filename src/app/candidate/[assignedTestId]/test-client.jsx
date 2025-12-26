@@ -1,18 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
-export default function TestClient({ assigned }) {
-  const durationMs = assigned.test.durationMin * 60 * 1000;
+export default function TestClient({ assigned, previewMode = false }) {
+  // Safeguard duration
+  const durationMs = Math.max(assigned.test.durationMin ?? 1, 1) * 60 * 1000;
 
   const [started, setStarted] = useState(false);
   const [locked, setLocked] = useState(false);
   const [timeLeft, setTimeLeft] = useState(durationMs);
   const [answers, setAnswers] = useState({});
 
-  // ⏱ TIMER
+  // Auto-start preview mode (read-only)
   useEffect(() => {
-    if (!started || locked) return;
+    if (previewMode) {
+      setStarted(true);
+      setLocked(true);
+    }
+  }, [previewMode]);
+
+  // Submit handler
+  const handleSubmit = useCallback(
+    async (auto = false) => {
+      // Preview: never submit
+      if (previewMode) {
+        setLocked(true);
+        return;
+      }
+
+      setLocked(true);
+
+      await fetch("/api/submit-test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          assignedTestId: assigned.id,
+          answers,
+          auto,
+        }),
+      });
+    },
+    [previewMode, assigned.id, answers]
+  );
+
+  // Timer
+  useEffect(() => {
+    if (!started || locked || previewMode) return;
 
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
@@ -26,7 +59,7 @@ export default function TestClient({ assigned }) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [started, locked]);
+  }, [started, locked, previewMode, handleSubmit]);
 
   function format(ms) {
     const total = Math.floor(ms / 1000);
@@ -35,7 +68,7 @@ export default function TestClient({ assigned }) {
     return `${m}:${String(s).padStart(2, "0")}`;
   }
 
-  // 📝 ANSWER HANDLERS
+  // Answer handlers
   function handleTextChange(qId, value) {
     setAnswers((prev) => ({ ...prev, [qId]: value }));
   }
@@ -52,36 +85,28 @@ export default function TestClient({ assigned }) {
     });
   }
 
-  // 📤 SUBMIT
-  async function handleSubmit(auto = false) {
-    setLocked(true);
-
-    await fetch("/api/submit-test", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        assignedTestId: assigned.id,
-        answers,
-        auto,
-      }),
-    });
-  }
+  const questions = assigned.test.groups.flatMap((tg) => tg.group.questions);
 
   return (
     <div className="max-w-3xl space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-xl font-semibold">
-          {assigned.test.name}
-        </h1>
+      {/* PREVIEW BANNER */}
+      {previewMode && (
+        <div className="p-3 rounded bg-yellow-100 text-yellow-800 text-sm">
+          Admin Preview Mode — answers will not be saved
+        </div>
+      )}
 
-        {started && (
-          <span className="font-bold text-red-600">
-            ⏱ {format(timeLeft)}
-          </span>
+      {/* HEADER */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-xl font-semibold">{assigned.test.name}</h1>
+
+        {!previewMode && started && (
+          <span className="font-bold text-red-600">{format(timeLeft)}</span>
         )}
       </div>
 
-      {!started && (
+      {/* START BUTTON (CANDIDATE ONLY) */}
+      {!started && !previewMode && (
         <button
           onClick={() => setStarted(true)}
           className="bg-black text-white px-4 py-2 rounded"
@@ -91,45 +116,39 @@ export default function TestClient({ assigned }) {
       )}
 
       {/* QUESTIONS */}
-      {assigned.test.groups.flatMap((tg) =>
-        tg.group.questions.map((q, idx) => (
-          <div key={q.id} className="border p-4 rounded space-y-2">
-            <p className="font-medium">
-              {idx + 1}. {q.text}
-            </p>
+      {questions.map((q, idx) => (
+        <div key={q.id} className="border p-4 rounded space-y-2">
+          <p className="font-medium">
+            {idx + 1}. {q.text}
+          </p>
 
-            {/* TEXT */}
-            {q.type === "TEXT" && (
-              <textarea
-                disabled={!started || locked}
-                className="w-full border p-2"
-                rows={4}
-                onChange={(e) =>
-                  handleTextChange(q.id, e.target.value)
-                }
-              />
-            )}
+          {/* TEXT */}
+          {q.type === "TEXT" && (
+            <textarea
+              disabled={!started || locked || previewMode}
+              className="w-full border p-2"
+              rows={4}
+              onChange={(e) => handleTextChange(q.id, e.target.value)}
+            />
+          )}
 
-            {/* MCQ (multi-select allowed) */}
-            {q.type === "MCQ" &&
-              q.choices.map((c) => (
-                <label key={c.id} className="flex gap-2">
-                  <input
-                    type="checkbox"
-                    disabled={!started || locked}
-                    onChange={() =>
-                      handleMCQChange(q.id, c.id)
-                    }
-                  />
-                  {c.text}
-                </label>
-              ))}
-          </div>
-        ))
-      )}
+          {/* MCQ */}
+          {q.type === "MCQ" &&
+            q.choices.map((c) => (
+              <label key={c.id} className="flex gap-2">
+                <input
+                  type="checkbox"
+                  disabled={!started || locked || previewMode}
+                  onChange={() => handleMCQChange(q.id, c.id)}
+                />
+                {c.text}
+              </label>
+            ))}
+        </div>
+      ))}
 
       {/* SUBMIT */}
-      {started && !locked && (
+      {started && !locked && !previewMode && (
         <button
           onClick={() => handleSubmit(false)}
           className="bg-green-600 text-white px-4 py-2 rounded"
@@ -138,9 +157,12 @@ export default function TestClient({ assigned }) {
         </button>
       )}
 
+      {/* FOOTER MESSAGE */}
       {locked && (
         <p className="text-gray-500">
-          Test submitted. Answers locked.
+          {previewMode
+            ? "Preview completed. No answers were saved."
+            : "Test submitted. Answers locked."}
         </p>
       )}
     </div>
