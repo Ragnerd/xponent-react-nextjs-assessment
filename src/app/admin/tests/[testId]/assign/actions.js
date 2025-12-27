@@ -12,7 +12,7 @@ export async function assignInterviewee(formData) {
       return { error: "Missing test ID or user ID" };
     }
 
-    // ✅ Check if user exists
+    // Check if user exists
     const user = await db.user.findUnique({
       where: { id: userId },
     });
@@ -21,7 +21,7 @@ export async function assignInterviewee(formData) {
       return { error: "User not found" };
     }
 
-    // ✅ Prevent duplicate assignment
+    // Prevent duplicate assignment
     const alreadyAssigned = await db.assignedTest.findFirst({
       where: { testId, userId },
     });
@@ -30,7 +30,7 @@ export async function assignInterviewee(formData) {
       return { error: "This test is already assigned to this user" };
     }
 
-    // ✅ Create assignment
+    // Create assignment
     const assigned = await db.assignedTest.create({
       data: {
         testId,
@@ -38,10 +38,10 @@ export async function assignInterviewee(formData) {
       },
     });
 
-    // 🔄 Revalidate admin test page
+    // Revalidate admin test page
     revalidatePath(`/admin/tests/${testId}`);
 
-    // 🔥 IMPORTANT: return assigned test ID for preview
+    // Return assigned test ID for preview
     return {
       success: true,
       assignedTestId: assigned.id,

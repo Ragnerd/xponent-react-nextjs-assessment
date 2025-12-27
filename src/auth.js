@@ -102,7 +102,7 @@ export const {
         token.id = user.id;
         token.email = user.email;
 
-        // ✅ ROLE DECISION
+        // ROLE DECISION
         token.role = user.email === "admin@example.com" ? "admin" : "candidate";
       }
       return token;

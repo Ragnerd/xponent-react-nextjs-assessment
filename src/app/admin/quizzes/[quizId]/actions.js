@@ -4,9 +4,6 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-/* =========================
-   CREATE GROUP (FIX)
-========================= */
 export async function createGroup(formData) {
   const name = formData.get("name");
   const quizId = formData.get("quizId");
@@ -25,9 +22,6 @@ export async function createGroup(formData) {
   revalidatePath(`/admin/quizzes/${quizId}`);
 }
 
-/* =========================
-   CREATE TEST (UNCHANGED)
-========================= */
 export async function createTest(formData) {
   const quizId = formData.get("quizId");
   const durationMin = Number(formData.get("duration")) || 30;
@@ -37,7 +31,7 @@ export async function createTest(formData) {
   const quiz = await db.quiz.findUnique({
     where: { id: quizId },
     include: {
-      position: true, // ⚠️ REQUIRED (you were missing this)
+      position: true,
       groups: {
         include: {
           questions: true,

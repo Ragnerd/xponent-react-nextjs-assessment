@@ -19,7 +19,7 @@ export async function createTestTaker(formData) {
 
   await db.user.create({
     data: {
-      id: userId, // 👈 username = ID
+      id: userId, // username = ID
       name,
       email,
       password: hash,

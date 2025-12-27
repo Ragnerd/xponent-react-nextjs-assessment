@@ -17,7 +17,7 @@ export default async function PositionsPage() {
     <div className="space-y-6">
       <h1 className="text-xl font-semibold">Positions</h1>
 
-      {/* ✅ CREATE POSITION FORM */}
+      {/* CREATE POSITION FORM */}
       <form action={createPosition} className="flex gap-2 max-w-md">
         <input
           name="title"
@@ -32,7 +32,7 @@ export default async function PositionsPage() {
         </button>
       </form>
 
-      {/* ✅ LIST POSITIONS */}
+      {/* LIST POSITIONS */}
       <div className="space-y-3">
         {positions.map((p) => (
           <div key={p.id} className="border p-3 rounded">

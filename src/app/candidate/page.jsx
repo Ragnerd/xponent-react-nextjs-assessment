@@ -22,6 +22,12 @@ export default async function CandidatePage() {
     redirect(`/candidate/${assignedTest.id}`);
   }
 
+  async function logoutAction() {
+    "use server";
+    await signOut();
+    redirect("/auth/login");
+  }
+
   // No test assigned → show message + logout
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -33,16 +39,12 @@ export default async function CandidatePage() {
           to assign one.
         </p>
 
-        {/* 🔐 Logout button */}
-        <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/auth/login" });
-          }}
-        >
+        {/* Logout button */}
+        <form action={logoutAction}>
           <button
             type="submit"
-            className="mt-4 w-full px-4 py-2 rounded bg-black text-white hover:bg-black/90"
+            className="mt-4 w-fuly
+            l px-4 py-2 rounded bg-black text-white hover:bg-black/90"
           >
             Log out
           </button>

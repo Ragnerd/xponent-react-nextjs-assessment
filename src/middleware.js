@@ -47,9 +47,8 @@ export default auth(async (req) => {
   const isAdmin = email === "admin@example.com";
   const isCandidate = role === "candidate";
 
-  /**
-   * Admin-only dashboard
-   */
+  // Admin-only dashboard
+
   if (nextUrl.pathname.startsWith("/dashboard")) {
     if (!isAdmin) {
       return Response.redirect(new URL("/candidate", nextUrl));
@@ -57,16 +56,13 @@ export default auth(async (req) => {
     return;
   }
 
-  /**
-   * Candidate should never see dashboard
-   */
+  // Candidate should never see dashboard
+
   if (isCandidate && nextUrl.pathname === "/dashboard") {
     return Response.redirect(new URL("/candidate", nextUrl));
   }
 
-  /**
-   * Admin should NEVER access /candidate
-   */
+  // Admin should NEVER access /candidate
   if (isAdmin && nextUrl.pathname.startsWith("/candidate")) {
     return Response.redirect(new URL("/dashboard", nextUrl));
   }

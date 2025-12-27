@@ -16,7 +16,7 @@ export default async function AdminQuizzesPage() {
     },
   });
 
-  // 🔹 flatten everything
+  // flatten everything
   const groups = positions.flatMap((p) => p.quizzes).flatMap((q) => q.groups);
 
   const totalGroups = groups.length;
@@ -27,7 +27,7 @@ export default async function AdminQuizzesPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Quizzes</h1>
 
-      {/* ✅ GLOBAL QUIZ SUMMARY (ONLY HERE) */}
+      {/* GLOBAL QUIZ SUMMARY (ONLY HERE) */}
       <QuizCard totalGroups={totalGroups} totalQuestions={totalQuestions} />
     </div>
   );

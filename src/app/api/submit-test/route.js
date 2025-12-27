@@ -1,11 +1,10 @@
-// src/app/api/submit-test/route.js
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
   const { assignedTestId, answers } = await req.json();
 
-  // 1️⃣ mark test submitted
+  // mark test submitted
   await db.assignedTest.update({
     where: { id: assignedTestId },
     data: {
@@ -14,13 +13,13 @@ export async function POST(req) {
     },
   });
 
-  // 2️⃣ fetch questions with correct MCQs
+  // fetch questions with correct MCQs
   const questions = await db.question.findMany({
     where: { id: { in: Object.keys(answers) } },
     include: { choices: true },
   });
 
-  // 3️⃣ save answers
+  // save answers
   for (const q of questions) {
     const userAnswer = answers[q.id];
 
