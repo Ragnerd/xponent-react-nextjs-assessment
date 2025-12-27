@@ -3,7 +3,7 @@ import { createTest } from "./actions";
 
 export default async function CreateTestPage() {
   const quizzes = await db.quiz.findMany();
-  const groups = await db.group.findMany(); // FETCH GROUPS DIRECTLY
+  const groups = await db.group.findMany(); // 🔑 FETCH GROUPS DIRECTLY
 
   return (
     <form action={createTest} className="space-y-6 max-w-xl">

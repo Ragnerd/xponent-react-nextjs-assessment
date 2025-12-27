@@ -9,6 +9,7 @@ export async function createTest(formData) {
   const date = new Date(formData.get("testDate"));
   const durationMin = Number(formData.get("durationMin"));
 
+  // ✅ THIS WAS MISSING
   const groupIds = formData.getAll("groupIds");
 
   const test = await db.test.create({

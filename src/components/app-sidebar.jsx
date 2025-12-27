@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useCurrentUser } from "@/hooks/use-current-user";
 
-// This is sample data
+// This is sample data.
 const data = {
   user: {
     name: "shadcn",

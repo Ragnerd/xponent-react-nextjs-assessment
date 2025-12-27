@@ -34,7 +34,7 @@ export default async function PositionQuizzesPage({ params }) {
     <div className="space-y-6">
       <h1 className="text-xl font-semibold">Quizzes for {position.title}</h1>
 
-      {/* AUTO-SYNCED SUMMARY */}
+      {/* ✅ AUTO-SYNCED SUMMARY */}
       {/* <div className="border rounded p-4 max-w-md space-y-3">
         <div>
           <p className="text-sm text-muted-foreground">Groups</p>
